@@ -1,0 +1,41 @@
+/* Container cell */
+.lunch-rater-controls-cell {
+  text-align: center;
+  padding: 4px;
+}
+
+/* Base SVG button styling */
+.lunch-rater-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  margin: 0 4px;
+  transition: color 0.2s ease; /* smooth color changes */ :contentReference[oaicite:0]{index=0}
+  color: #999; /* neutral icon color */ :contentReference[oaicite:1]{index=1}
+}
+.lunch-rater-button:hover {
+  /* no opacity change */
+}
+
+/* Active states: tint via `currentColor` */
+.lunch-rater-button.like.lunch-rater-on {
+  color: #59a013; /* new green */ :contentReference[oaicite:2]{index=2}
+}
+.lunch-rater-button.dislike.lunch-rater-on {
+  color: #af1a1a; /* deep red */ :contentReference[oaicite:3]{index=3}
+}
+
+/* Text styling */
+.lunch-rater-text {
+  display: inline-block;
+}
+.lunch-rater-bold {
+  font-weight: bold !important;
+}
+.lunch-rater-strike,
+.lunch-rater-strike * {
+  text-decoration: line-through !important;
+}

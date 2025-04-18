@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "Rozvoz Specialit Rater",
+  "version": "1.4",
+  "description": "Rate your lunch items on RozvozSpecialit.cz with 👍/👎 and see your past likes/dislikes.",
+  "permissions": [
+    "storage"
+  ],
+  "options_page": "options.html",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.rozvozspecialit.cz/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "icons/thumb_up.svg",
+        "icons/thumb_down.svg"
+      ],
+      "matches": [
+        "https://www.rozvozspecialit.cz/*"
+      ]
+    }
+  ],
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+    },
+    "default_title": "Rozvoz Specialit Rater"
+  }
+}
