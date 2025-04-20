@@ -27,3 +27,6 @@ yarn-debug.log*
 # --- IDE / Editor directories ---
 .vscode/
 .idea/
+
+# Build directory
+build/
