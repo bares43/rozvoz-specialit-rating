@@ -65,27 +65,61 @@ async function removeFromDisliked(name) {
 document.addEventListener('DOMContentLoaded', () => {
   initOptions();
 
-  const newItemInput = document.getElementById('new-item-input');
-  const addLikedBtn = document.getElementById('add-liked-btn');
-  const addDislikedBtn = document.getElementById('add-disliked-btn');
+  const newItemInput    = document.getElementById('new-item-input');
+  const addLikedBtn     = document.getElementById('add-liked-btn');
+  const addDislikedBtn  = document.getElementById('add-disliked-btn');
 
   addLikedBtn.addEventListener('click', async () => {
     const name = newItemInput.value.trim();
     if (!name) return;
     const ratings = await getRatings();
-    ratings[name] = 1;                  // mark as liked
+    ratings[name] = 1;
     await saveRatings(ratings);
-    newItemInput.value = '';            // clear input
-    initOptions();                      // re-render lists
+    newItemInput.value = '';
+    initOptions();
   });
 
   addDislikedBtn.addEventListener('click', async () => {
     const name = newItemInput.value.trim();
     if (!name) return;
     const ratings = await getRatings();
-    ratings[name] = -1;                 // mark as disliked
+    ratings[name] = -1;
     await saveRatings(ratings);
     newItemInput.value = '';
     initOptions();
+  });
+
+  // NEW: export/import controls
+  const exportBtn   = document.getElementById('export-btn');
+  const importInput = document.getElementById('import-input');
+
+  exportBtn.addEventListener('click', async () => {
+    const ratings = await getRatings();
+    const blob    = new Blob([JSON.stringify(ratings, null, 2)], { type: 'application/json' });
+    const url     = URL.createObjectURL(blob);
+    const a       = document.createElement('a');
+    a.href        = url;
+    a.download    = 'lunchRatings.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  importInput.addEventListener('change', async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const text = await file.text();
+    let imported;
+    try {
+      imported = JSON.parse(text);
+    } catch {
+      alert('Invalid JSON file');
+      return;
+    }
+    // overwrite existing ratings
+    await saveRatings(imported);
+    initOptions();
+    importInput.value = '';
   });
 });

@@ -8,7 +8,7 @@
 <body>
   <h1>Rozvoz Specialit Rater</h1>
 
-  <!-- NEW: form to add a lunch to Liked or Disliked -->
+  <!-- form to add a lunch to Liked or Disliked -->
   <form id="add-item-form">
     <input id="new-item-input" type="text" placeholder="Enter lunch name…" />
     <button id="add-liked-btn" type="button">Add to Liked</button>
@@ -25,6 +25,13 @@
     <ul id="disliked-list"></ul>
     <p id="no-disliked">You haven’t disliked any lunches yet.</p>
   </section>
+
+  <!-- NEW: export/import controls -->
+  <div id="export-import">
+    <button id="export-btn">Export to JSON</button>
+    <label for="import-input" class="file-label">Import JSON:</label>
+    <input id="import-input" type="file" accept=".json" />
+  </div>
 
   <script src="options.js"></script>
 </body>

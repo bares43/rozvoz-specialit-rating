@@ -43,3 +43,19 @@ p {
   color: #666;
   font-style: italic;
 }
+
+#export-import {
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+}
+
+#export-import button,
+#export-import .file-label {
+  margin-right: 0.5rem;
+  font-size: 0.9rem;
+}
+
+#export-import input[type="file"] {
+  cursor: pointer;
+}
