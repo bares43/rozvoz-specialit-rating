@@ -62,4 +62,30 @@ async function removeFromDisliked(name) {
   initOptions();  // re-render
 }
 
-document.addEventListener('DOMContentLoaded', initOptions);
+document.addEventListener('DOMContentLoaded', () => {
+  initOptions();
+
+  const newItemInput = document.getElementById('new-item-input');
+  const addLikedBtn = document.getElementById('add-liked-btn');
+  const addDislikedBtn = document.getElementById('add-disliked-btn');
+
+  addLikedBtn.addEventListener('click', async () => {
+    const name = newItemInput.value.trim();
+    if (!name) return;
+    const ratings = await getRatings();
+    ratings[name] = 1;                  // mark as liked
+    await saveRatings(ratings);
+    newItemInput.value = '';            // clear input
+    initOptions();                      // re-render lists
+  });
+
+  addDislikedBtn.addEventListener('click', async () => {
+    const name = newItemInput.value.trim();
+    if (!name) return;
+    const ratings = await getRatings();
+    ratings[name] = -1;                 // mark as disliked
+    await saveRatings(ratings);
+    newItemInput.value = '';
+    initOptions();
+  });
+});
