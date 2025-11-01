@@ -24,6 +24,9 @@
 .lunch-rater-button.like.lunch-rater-on {
   color: #59a013; /* new green */ :contentReference[oaicite:2]{index=2}
 }
+.lunch-rater-button.neutral.lunch-rater-on {
+  color: #28a745; /* green */
+}
 .lunch-rater-button.dislike.lunch-rater-on {
   color: #af1a1a; /* deep red */ :contentReference[oaicite:3]{index=3}
 }
@@ -34,6 +37,10 @@
 }
 .lunch-rater-bold {
   font-weight: bold !important;
+}
+.lunch-rater-neutral {
+  font-style: italic !important;
+  color: #28a745 !important;
 }
 .lunch-rater-strike,
 .lunch-rater-strike * {

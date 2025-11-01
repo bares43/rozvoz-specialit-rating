@@ -37,18 +37,28 @@ function renderList(containerId, items, emptyMsgId, onRemove) {
 async function initOptions() {
   const ratings = await getRatings();
   const liked    = [];
+  const neutral  = [];
   const disliked = [];
 
   for (const [name, value] of Object.entries(ratings)) {
-    if (value === 1)  liked.push(name);
-    if (value === -1) disliked.push(name);
+    if (value === 1)    liked.push(name);
+    if (value === 0.5)  neutral.push(name);
+    if (value === -1)   disliked.push(name);
   }
 
   renderList('liked-list',    liked,    'no-liked',    removeFromLiked);
+  renderList('neutral-list',  neutral,  'no-neutral',  removeFromNeutral);
   renderList('disliked-list', disliked, 'no-disliked', removeFromDisliked);
 }
 
 async function removeFromLiked(name) {
+  const ratings = await getRatings();
+  delete ratings[name];
+  await saveRatings(ratings);
+  initOptions();  // re-render
+}
+
+async function removeFromNeutral(name) {
   const ratings = await getRatings();
   delete ratings[name];
   await saveRatings(ratings);
@@ -67,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const newItemInput    = document.getElementById('new-item-input');
   const addLikedBtn     = document.getElementById('add-liked-btn');
+  const addNeutralBtn   = document.getElementById('add-neutral-btn');
   const addDislikedBtn  = document.getElementById('add-disliked-btn');
 
   addLikedBtn.addEventListener('click', async () => {
@@ -74,6 +85,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!name) return;
     const ratings = await getRatings();
     ratings[name] = 1;
+    await saveRatings(ratings);
+    newItemInput.value = '';
+    initOptions();
+  });
+
+  addNeutralBtn.addEventListener('click', async () => {
+    const name = newItemInput.value.trim();
+    if (!name) return;
+    const ratings = await getRatings();
+    ratings[name] = 0.5;
     await saveRatings(ratings);
     newItemInput.value = '';
     initOptions();
