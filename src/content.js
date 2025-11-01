@@ -10,6 +10,21 @@ async function saveRatings(ratings) {
   await chrome.storage.local.set({ [STORAGE_KEY]: ratings });
 }
 
+
+
+async function callWebhook(dishName, rating) {
+  try {
+    // Send message to background script to handle webhook
+    chrome.runtime.sendMessage({
+      type: 'webhook',
+      dishName: dishName,
+      rating: rating
+    });
+  } catch (error) {
+    console.error('Failed to send webhook message:', error);
+  }
+}
+
 async function makeButton(iconFile, altText, active, type) {
   const url = chrome.runtime.getURL(`icons/${iconFile}`);
   const res = await fetch(url);
@@ -69,6 +84,7 @@ async function initRater() {
         const now   = was === 1 ? 0 : 1;
         if (now === 0) delete fresh[dishName]; else fresh[dishName] = now;
         await saveRatings(fresh);
+        await callWebhook(dishName, now);
 
         upBtn.classList.toggle('lunch-rater-on', now === 1);
         neutralBtn.classList.remove('lunch-rater-on');
@@ -85,6 +101,7 @@ async function initRater() {
         const now   = was === 0.5 ? 0 : 0.5;
         if (now === 0) delete fresh[dishName]; else fresh[dishName] = now;
         await saveRatings(fresh);
+        await callWebhook(dishName, now);
 
         neutralBtn.classList.toggle('lunch-rater-on', now === 0.5);
         upBtn.classList.remove('lunch-rater-on');
@@ -101,6 +118,7 @@ async function initRater() {
         const now   = was === -1 ? 0 : -1;
         if (now === 0) delete fresh[dishName]; else fresh[dishName] = now;
         await saveRatings(fresh);
+        await callWebhook(dishName, now);
 
         downBtn.classList.toggle('lunch-rater-on', now === -1);
         upBtn.classList.remove('lunch-rater-on');

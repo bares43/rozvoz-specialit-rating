@@ -1,4 +1,5 @@
 const STORAGE_KEY = 'lunchRatings';
+const WEBHOOK_SETTINGS_KEY = 'webhookSettings';
 
 async function getRatings() {
   const data = await chrome.storage.local.get(STORAGE_KEY);
@@ -7,6 +8,15 @@ async function getRatings() {
 
 async function saveRatings(ratings) {
   await chrome.storage.local.set({ [STORAGE_KEY]: ratings });
+}
+
+async function getWebhookSettings() {
+  const data = await chrome.storage.local.get(WEBHOOK_SETTINGS_KEY);
+  return data[WEBHOOK_SETTINGS_KEY] || { enabled: false, url: '', headers: {} };
+}
+
+async function saveWebhookSettings(settings) {
+  await chrome.storage.local.set({ [WEBHOOK_SETTINGS_KEY]: settings });
 }
 
 function renderList(containerId, items, emptyMsgId, onRemove) {
@@ -49,6 +59,16 @@ async function initOptions() {
   renderList('liked-list',    liked,    'no-liked',    removeFromLiked);
   renderList('neutral-list',  neutral,  'no-neutral',  removeFromNeutral);
   renderList('disliked-list', disliked, 'no-disliked', removeFromDisliked);
+
+  // Load webhook settings
+  const webhookSettings = await getWebhookSettings();
+  document.getElementById('webhook-enabled').checked = webhookSettings.enabled;
+  document.getElementById('webhook-url').value = webhookSettings.url || '';
+  document.getElementById('webhook-headers').value = JSON.stringify(webhookSettings.headers || {}, null, 2);
+  
+  // Show/hide webhook config based on enabled state
+  const webhookConfig = document.getElementById('webhook-config');
+  webhookConfig.style.display = webhookSettings.enabled ? 'block' : 'none';
 }
 
 async function removeFromLiked(name) {
@@ -142,5 +162,80 @@ document.addEventListener('DOMContentLoaded', () => {
     await saveRatings(imported);
     initOptions();
     importInput.value = '';
+  });
+
+  // Webhook settings
+  const webhookEnabled = document.getElementById('webhook-enabled');
+  const webhookConfig = document.getElementById('webhook-config');
+  const webhookUrl = document.getElementById('webhook-url');
+  const webhookHeaders = document.getElementById('webhook-headers');
+  const saveWebhookBtn = document.getElementById('save-webhook-btn');
+  const testWebhookBtn = document.getElementById('test-webhook-btn');
+
+  webhookEnabled.addEventListener('change', () => {
+    webhookConfig.style.display = webhookEnabled.checked ? 'block' : 'none';
+  });
+
+  saveWebhookBtn.addEventListener('click', async () => {
+    let headers = {};
+    try {
+      if (webhookHeaders.value.trim()) {
+        headers = JSON.parse(webhookHeaders.value);
+      }
+    } catch (error) {
+      alert('Invalid JSON in headers field');
+      return;
+    }
+
+    const settings = {
+      enabled: webhookEnabled.checked,
+      url: webhookUrl.value.trim(),
+      headers: headers
+    };
+
+    await saveWebhookSettings(settings);
+    alert('Webhook settings saved!');
+  });
+
+  testWebhookBtn.addEventListener('click', async () => {
+    const url = webhookUrl.value.trim();
+    if (!url) {
+      alert('Please enter a webhook URL first');
+      return;
+    }
+
+    let headers = { 'Content-Type': 'application/json' };
+    try {
+      if (webhookHeaders.value.trim()) {
+        headers = { ...headers, ...JSON.parse(webhookHeaders.value) };
+      }
+    } catch (error) {
+      alert('Invalid JSON in headers field');
+      return;
+    }
+
+    const testPayload = {
+      lunchName: "Test Lunch Item",
+      rating: 1,
+      timestamp: new Date().toISOString(),
+      source: "rozvoz-specialit-rater",
+      test: true
+    };
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(testPayload)
+      });
+
+      if (response.ok) {
+        alert(`Webhook test successful! Status: ${response.status}`);
+      } else {
+        alert(`Webhook test failed! Status: ${response.status} - ${response.statusText}`);
+      }
+    } catch (error) {
+      alert(`Webhook test failed! Error: ${error.message}`);
+    }
   });
 });
