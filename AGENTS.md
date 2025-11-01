@@ -12,9 +12,11 @@ The extension adds interactive rating functionality to lunch menus on RozvozSpec
 - **Persistent Storage**: Saves user ratings using Chrome's local storage API
 - **Visual Feedback**: 
   - Liked items appear in **bold text**
+  - Neutral items appear in *italic orange text*
   - Disliked items appear with ~~strikethrough text~~
-  - Active rating buttons are highlighted in green (like) or red (dislike)
+  - Active rating buttons are highlighted in green (like), orange (neutral), or red (dislike)
 - **Management Interface**: Options page to view, add, remove, and export/import ratings
+- **Webhook Integration**: Configurable webhook notifications when ratings change
 
 ## Architecture & Components
 
@@ -31,6 +33,7 @@ src/
 ├── icon.png              # Extension icon
 └── icons/
     ├── thumb_up.svg      # Like button icon
+    ├── neutral.svg       # Neutral button icon
     └── thumb_down.svg    # Dislike button icon
 ```
 
@@ -44,21 +47,24 @@ src/
   - `getRatings()`/`saveRatings()`: Chrome storage interface
 - **Event Handling**: Uses MutationObserver to handle dynamic content loading
 - **Data Storage**: Uses Chrome's `chrome.storage.local` API with key `lunchRatings`
+- **Rating Values**: -1 (dislike), 0 (unrated), 0.5 (neutral), 1 (like)
 
 #### 2. Options Page (`options.html` + `options.js`)
 - **Purpose**: Management interface for user ratings
 - **Features**:
-  - View all liked/disliked items in separate lists
-  - Manually add items to liked/disliked categories
+  - View all liked/neutral/disliked items in separate lists
+  - Manually add items to liked/neutral/disliked categories
   - Remove individual ratings
   - Export ratings to JSON file
   - Import ratings from JSON file
-- **Data Format**: JSON object with dish names as keys and rating values (-1, 0, 1)
+  - Configure webhook notifications for rating changes
+  - Test webhook connectivity
+- **Data Format**: JSON object with dish names as keys and rating values (-1, 0, 0.5, 1)
 
 #### 3. Styling (`content.css`)
 - **Button States**: Uses CSS color changes for active/inactive states
 - **Text Effects**: Bold for liked items, strikethrough for disliked
-- **Colors**: Green (#59a013) for likes, red (#af1a1a) for dislikes
+- **Colors**: Green (#59a013) for likes, orange (#f39c12) for neutral, red (#af1a1a) for dislikes
 
 ## How It Works
 
@@ -66,10 +72,11 @@ src/
 1. **Detection**: Scans for `div.offer table` elements containing lunch menus
 2. **Injection**: Adds rating buttons to each table row with class `nazevjidla`
 3. **State Management**: 
-   - Rating values: -1 (dislike), 0 (neutral/removed), 1 (like)
-   - Clicking same button toggles between active/neutral states
-   - Clicking opposite button switches rating
+   - Rating values: -1 (dislike), 0 (unrated/removed), 0.5 (neutral), 1 (like)
+   - Clicking same button toggles between active/unrated states
+   - Clicking different button switches rating and clears other states
 4. **Persistence**: All ratings stored in Chrome local storage as JSON object
+5. **Webhook Notifications**: Optional POST requests sent when ratings change
 
 ### Data Flow
 ```
@@ -128,14 +135,52 @@ User Click → Event Handler → Update Storage → Update UI → Visual Feedbac
   "lunchRatings": {
     "Goulash with dumplings": 1,
     "Fish and chips": -1,
-    "Vegetarian pasta": 1
+    "Vegetarian pasta": 1,
+    "Chicken salad": 0.5
   }
 }
 ```
 
 ### Rating Values
 - `1`: Liked (bold text, green thumb up)
+- `0.5`: Neutral (italic orange text, orange neutral icon)
 - `-1`: Disliked (strikethrough text, red thumb down)  
-- `0` or missing: Neutral (normal text, gray buttons)
+- `0` or missing: Unrated (normal text, gray buttons)
 
-This extension provides a simple but effective way to track lunch preferences on a specific Czech delivery website, with a clean architecture that's easy to extend and maintain.
+## Webhook Integration
+
+### Webhook Configuration
+The extension supports webhook notifications that are triggered whenever a rating changes. Configuration is done through the options page:
+
+```json
+{
+  "webhookSettings": {
+    "enabled": true,
+    "url": "https://your-server.com/webhook",
+    "headers": {
+      "Authorization": "Bearer your-token",
+      "X-Custom-Header": "value"
+    }
+  }
+}
+```
+
+### Webhook Payload Format
+When a rating changes, the extension sends a POST request with this JSON payload:
+
+```json
+{
+  "lunchName": "Goulash with dumplings",
+  "rating": 1,
+  "timestamp": "2024-11-01T12:30:00.000Z",
+  "source": "rozvoz-specialit-rater"
+}
+```
+
+### Webhook Features
+- **Enable/Disable**: Toggle webhook notifications on/off
+- **Custom Headers**: Support for authentication tokens and custom headers
+- **Test Function**: Built-in webhook testing with sample payload
+- **Error Handling**: Silent failure with console logging for debugging
+
+This extension provides a simple but effective way to track lunch preferences on a specific Czech delivery website, with webhook integration for external system notifications and a clean architecture that's easy to extend and maintain.
