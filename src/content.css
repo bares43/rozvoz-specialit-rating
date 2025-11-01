@@ -37,10 +37,10 @@
 }
 .lunch-rater-bold {
   font-weight: bold !important;
+  color: #59a013 !important;
 }
 .lunch-rater-neutral {
-  font-style: italic !important;
-  color: #28a745 !important;
+  font-weight: bold !important;
 }
 .lunch-rater-strike,
 .lunch-rater-strike * {
