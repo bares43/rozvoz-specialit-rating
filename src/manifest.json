@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Rozvoz Specialit Rater",
-  "version": "1.6",
+  "version": "1.7",
   "description": "Rate your lunch items on RozvozSpecialit.cz with 👍/👎 and see your past likes/dislikes.",
   "permissions": [
     "storage"

@@ -1,10 +1,13 @@
-/* Container cell */
+/* Container cell - flexible positioning regardless of column count */
 .lunch-rater-controls-cell {
   text-align: center;
   padding: 4px;
+  white-space: nowrap;
+  vertical-align: middle;
+  min-width: 80px; /* ensure enough space for 3 buttons */
 }
 
-/* Base SVG button styling */
+/* Base SVG button styling - independent of table structure */
 .lunch-rater-button {
   display: inline-flex;
   align-items: center;
@@ -12,9 +15,10 @@
   width: 20px;
   height: 20px;
   cursor: pointer;
-  margin: 0 4px;
-  transition: color 0.2s ease; /* smooth color changes */ :contentReference[oaicite:0]{index=0}
-  color: #999; /* neutral icon color */ :contentReference[oaicite:1]{index=1}
+  margin: 0 2px;
+  transition: color 0.2s ease;
+  color: #999;
+  flex-shrink: 0; /* prevent button shrinking */
 }
 .lunch-rater-button:hover {
   /* no opacity change */
@@ -31,7 +35,7 @@
   color: #af1a1a; /* deep red */ :contentReference[oaicite:3]{index=3}
 }
 
-/* Text styling */
+/* Text styling - class-based, not position-dependent */
 .lunch-rater-text {
   display: inline-block;
 }
@@ -45,4 +49,14 @@
 .lunch-rater-strike,
 .lunch-rater-strike * {
   text-decoration: line-through !important;
+}
+
+/* Ensure rating controls are always visible regardless of table layout */
+.lunch-rater-controls-cell {
+  position: relative;
+}
+
+/* Make sure buttons container doesn't break on narrow screens */
+.lunch-rater-controls-cell .lunch-rater-button {
+  display: inline-flex;
 }
